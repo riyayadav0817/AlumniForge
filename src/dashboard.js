@@ -4,44 +4,59 @@ import { api } from "../convex/_generated/api.js";
 
 await clerk.load();
 
+/* =========================
+   CONVEX AUTH
+========================= */
+
 convex.setAuth(async () => {
-    return await clerk.session?.getToken({
-        template: "convex",
-    }) ?? null;
+  return (
+    await clerk.session?.getToken({
+      template: "convex",
+    })
+  ) ?? null;
 });
+
+/* =========================
+   LOAD CURRENT USER
+========================= */
 
 if (!clerk.isSignedIn) {
-    console.log("No signed-in Clerk user.");
+  console.warn("No signed-in AlumniForge user.");
 } else {
-    const user = await convex.query(api.users.getCurrentUser, {});
+  try {
+    const user = await convex.query(
+      api.users.getCurrentUser,
+      {}
+    );
 
-    const name = user?.name;
-    const email = user?.email;
-    const collegeEmail = user?.collegeEmail;
-    const dateOfBirth = user?.dateOfBirth;
-    const graduationYear = user?.graduationYear;
-    const branch = user?.branch;
-    const role = user?.role;
-    const createdAt = user?.createdAt;
-
-    console.log("ALUMNIFORGE USER:", user);
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("College Email:", collegeEmail);
-    console.log("DOB:", dateOfBirth);
-    console.log("Grad yr:", graduationYear);
-    console.log("Branch:", branch);
-    console.log("Role:", role);
-    console.log("Created at:", createdAt);
+    if (user) {
+      console.log("AlumniForge user loaded successfully.");
+    } else {
+      console.warn("No AlumniForge user profile found.");
+    }
+  } catch (error) {
+    console.error(
+      "Failed to load AlumniForge user:",
+      error
+    );
+  }
 }
 
-//test
-const signOutButton = document.createElement("button");
-signOutButton.textContent = "Test Sign Out";
+/* =========================
+   LOGOUT
+========================= */
 
-signOutButton.addEventListener("click", async () => {
-    await clerk.signOut();
-    window.location.href = "/login.html";
-});
+const logoutLink = document.getElementById("logoutLink");
 
-document.body.appendChild(signOutButton);
+if (logoutLink) {
+  logoutLink.addEventListener("click", async (event) => {
+    event.preventDefault();
+
+    try {
+      await clerk.signOut();
+      window.location.href = "./index.html";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  });
+}
