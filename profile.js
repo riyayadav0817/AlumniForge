@@ -1,5 +1,3 @@
-
-
 const PROFILE_KEY = "alumniForgeProfile";
 const PHOTO_KEY = "alumniForgeProfilePhoto";
 const THEME_KEY = "alumniForgeTheme";
